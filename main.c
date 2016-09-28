@@ -28,7 +28,8 @@ int main(int argc, char *argv[])
     char line[MAX_LAST_NAME_SIZE];
     struct timespec start, end;
     double cpu_time1, cpu_time2;
-
+    struct entry *hashtable[1000]= {NULL};
+    struct entry *hashhead[1000]= {NULL};
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
@@ -52,7 +53,16 @@ int main(int argc, char *argv[])
             i++;
         line[i - 1] = '\0';
         i = 0;
+#if defined(HASH)
+        int hashindex = hash(line);
+        if(hashtable[hashindex]==NULL) {
+            hashtable[hashindex] = malloc(sizeof(entry));
+            hashhead[hashindex] = hashtable[hashindex];
+        }
+        hashtable[hashindex] = append(line,hashtable[hashindex]);
+#else
         e = append(line, e);
+#endif
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
@@ -60,12 +70,15 @@ int main(int argc, char *argv[])
     /* close file as soon as possible */
     fclose(fp);
 
-    e = pHead;
 
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
+#if defined(HASH)
+    int index = hash(input);
+    e = hashhead[index];
+#else
     e = pHead;
-
+#endif
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
@@ -82,6 +95,8 @@ int main(int argc, char *argv[])
     FILE *output;
 #if defined(OPT)
     output = fopen("opt.txt", "a");
+#elif defined(HASH)
+    output = fopen("hash.txt","a");
 #else
     output = fopen("orig.txt", "a");
 #endif

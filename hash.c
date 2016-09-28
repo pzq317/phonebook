@@ -1,11 +1,13 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-#include "phonebook_opt.h"
+#include "hash.h"
 
-/* FILL YOUR OWN IMPLEMENTATION HERE! */
+/* original version */
 entry *findName(char lastName[], entry *pHead)
 {
-    /* TODO: implement */
     while (pHead != NULL) {
         if (strcasecmp(lastName, pHead->lastName) == 0)
             return pHead;
@@ -16,10 +18,21 @@ entry *findName(char lastName[], entry *pHead)
 
 entry *append(char lastName[], entry *e)
 {
+    /* allocate memory for the new entry and put lastName */
     e->pNext = (entry *) malloc(sizeof(entry));
     e = e->pNext;
     strcpy(e->lastName, lastName);
     e->pNext = NULL;
 
     return e;
+}
+int hash(unsigned char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+    int index;
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    index = hash%1000;
+    return index;
 }
