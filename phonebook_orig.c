@@ -5,7 +5,7 @@
 
 #include "phonebook_orig.h"
 
-/* original version */
+
 entry *findName(char lastName[], entry *pHead)
 {
     while (pHead != NULL) {
